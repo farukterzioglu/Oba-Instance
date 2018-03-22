@@ -30,13 +30,17 @@ namespace ObaCore.Domain
     public class ObaLaw
     {
         public string LawText { get; set; }
-        public string Hash { get; set; }
+        public string Hash { get; protected set; }
         public string Proposer { get; set; }
         public bool IsActive { get; set; }
     }
 
     public class ObaLawProposal : ObaLaw
     {
+        public ObaLawProposal()
+        {
+            base.Hash = Helper.GetHashString(base.LawText);
+        }
         public bool IsProposalActive { get; set; }
         public List<string> VoterIds { get; set; }
     }

@@ -6,7 +6,7 @@ using ObaCore.Domain;
 namespace ObaCore.Tests
 {
     [TestClass]
-    public class ObaCoreTests
+    public class AcceptanceProposalTests
     {
         private ObaInstance _oba;
 
@@ -17,7 +17,7 @@ namespace ObaCore.Tests
             //e6e10d36854ed0ade3c5677d2cde228be5205712e0ea3456474ca38512f1025c
             //bf4f6997dbcb57c8492f2d4f7a39f09f231b4d61ae9372e1ac8dcbc00a763281
 
-            _oba = new ObaInstance();
+            _oba = new ObaInstance {ContributedValue = 1};
         }
 
         [TestMethod]

@@ -16,8 +16,13 @@ namespace ObaCore.Domain
         public List<AcceptanceProposal> AcceptanceProposals;
         public List<Member> Members;
 
+        public int ContributedValue { get; set; }
+
         public double LawAcceptanceRatio { get; private set; }
         public double MemberAcceptanceRatio { get; private set; }
+
+
+        private int NewMemberContributionValue { get; set; }
 
         public ObaInstance()
         {
@@ -31,12 +36,13 @@ namespace ObaCore.Domain
 
             LawAcceptanceRatio = 1;
             MemberAcceptanceRatio = 1;
+            NewMemberContributionValue = 1;
         }
 
         public int MemberCount => Members.Count;
 
         #region Law Proposal
-        public string ProposeLaw(ObaLaw obaLaw)
+        public string ProposeLaw(ObaLawProposal obaLaw)
         {
             throw new NotImplementedException();
         }
@@ -89,6 +95,8 @@ namespace ObaCore.Domain
 
         public void ProposeForAccentance(string newMemberHash)
         {
+            if(this.ContributedValue != NewMemberContributionValue) return;
+
             //Check if already proposed 
             var existing = AcceptanceProposals.FirstOrDefault(x => x.Hash == newMemberHash);
             if (existing != null) return;
