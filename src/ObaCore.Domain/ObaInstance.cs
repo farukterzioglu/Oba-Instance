@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,12 +12,13 @@ namespace ObaCore.Domain
     {
         public string ObaHash { get; set; }
         public List<ObaLaw> ObaLaws;
-        public List<ObaLaw> ObaLawProposals;
+        public List<ObaLawProposal> ObaLawProposals;
         public List<LawAcceptanceRatioProposal> LawAcceptanceRatioProposals;
         public List<AcceptanceProposal> AcceptanceProposals;
         public List<Member> Members;
 
         public int ContributedValue { get; set; }
+        public string HashOfInvoker { get; set; }
 
         public double LawAcceptanceRatio { get; private set; }
         public double MemberAcceptanceRatio { get; private set; }
@@ -28,7 +30,7 @@ namespace ObaCore.Domain
         {
             ObaLaws = new List<ObaLaw>();
 
-            ObaLawProposals = new List<ObaLaw>();
+            ObaLawProposals = new List<ObaLawProposal>();
             LawAcceptanceRatioProposals = new List<LawAcceptanceRatioProposal>();
 
             AcceptanceProposals = new List<AcceptanceProposal>();
@@ -42,14 +44,39 @@ namespace ObaCore.Domain
         public int MemberCount => Members.Count;
 
         #region Law Proposal
-        public string ProposeLaw(ObaLawProposal obaLaw)
+        public string ProposeLaw(string lawTest)
         {
-            throw new NotImplementedException();
+            var lawProposal = new ObaLawProposal(lawTest, this.HashOfInvoker)
+            {
+                IsProposalActive = true
+            };
+            //Check if invoker is member
+            if (!this.Members.Select(x => x.Hash).Contains(this.HashOfInvoker))
+                return null;
+
+            this.ObaLawProposals.Add(lawProposal);
+
+            return Helper.GetHashString(lawProposal.LawText);
         }
 
         public void VoteForLawProposal(string obaLawHash)
         {
+            //Check member
+            if (!Members.Select(x => x.Hash).Contains(this.HashOfInvoker)) return;
+            //Check law proposal
+            if (!ObaLawProposals.Select( x=> x.Hash).Contains(obaLawHash)) return;
 
+            var proposal = ObaLawProposals.First(x => x.Hash == obaLawHash);
+            proposal.VoterIds.Add(this.HashOfInvoker);
+
+            //Check if it is successfull
+            if (proposal.VoterIds.Count >= this.MemberCount * this.LawAcceptanceRatio)
+            {
+                proposal.IsActive = true;
+                proposal.IsProposalActive = false;
+                //Proposal successfull, add to laws 
+                this.ObaLaws.Add(proposal);
+            }
         }
         #endregion
 

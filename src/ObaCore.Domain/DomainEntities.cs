@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -29,7 +30,13 @@ namespace ObaCore.Domain
 
     public class ObaLaw
     {
-        public string LawText { get; set; }
+        protected ObaLaw(string lawTest, string proposer)
+        {
+            this.LawText = lawTest;
+            this.Proposer = proposer;
+        }
+
+        public string LawText { get; private set; }
         public string Hash { get; protected set; }
         public string Proposer { get; set; }
         public bool IsActive { get; set; }
@@ -37,10 +44,13 @@ namespace ObaCore.Domain
 
     public class ObaLawProposal : ObaLaw
     {
-        public ObaLawProposal()
+        public ObaLawProposal(string lawTest, string proposer) : base(lawTest, proposer)
         {
-            base.Hash = Helper.GetHashString(base.LawText);
+            this.IsProposalActive = true;
+            this.Hash = Helper.GetHashString(lawTest);
+            this.VoterIds = new List<string>();
         }
+
         public bool IsProposalActive { get; set; }
         public List<string> VoterIds { get; set; }
     }
